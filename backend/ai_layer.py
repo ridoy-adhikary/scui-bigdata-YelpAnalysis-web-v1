@@ -17,20 +17,21 @@ router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 class AskRequest(BaseModel):
     question: str
-    tone: str = "friendly"  # optional: "friendly", "professional", "casual"
-    session_id: str = None  # optional: for multi-turn context
+    tone: str = "friendly"  # optional: friendly, professional, casual
+    session_id: str = None  # optional: multi-turn context
 
-# In-memory conversation memory (keyed by session_id)
+# In-memory conversation memory
 conversation_memory = {}
-# In-memory custom instructions per session
 custom_instructions = {}
 
+# Utility: summarize answer
 def summarize_answer(text: str, max_words: int = 50) -> str:
     words = text.split()
     if len(words) > max_words:
         return " ".join(words[:max_words]) + "..."
     return text
 
+# Utility: convert rows to CSV link
 def rows_to_csv(rows, columns):
     output = StringIO()
     writer = csv.writer(output)
@@ -39,17 +40,7 @@ def rows_to_csv(rows, columns):
     csv_str = output.getvalue()
     return "data:text/csv;base64," + base64.b64encode(csv_str.encode()).decode()
 
-def format_markdown_table(rows, columns):
-    if not rows or not columns:
-        return ""
-    header = " | ".join(columns)
-    separator = " | ".join(["---"]*len(columns))
-    row_lines = [" | ".join([str(v) for v in r]) for r in rows[:50]]  # show first 50 rows
-    table_text = "\n".join([header, separator] + row_lines)
-    if len(rows) > 50:
-        table_text += f"\n\n*Showing first 50 of {len(rows)} rows*"
-    return table_text
-
+# Detect query type
 def detect_query_type(question: str) -> str:
     question_lower = question.lower()
     if any(word in question_lower for word in ["count", "total", "number of"]):
@@ -70,88 +61,81 @@ def ask_ai(payload: AskRequest):
     tone = payload.tone
     session_id = payload.session_id or "default"
 
-    # Initialize conversation memory for session
+    # Initialize memory
     if session_id not in conversation_memory:
         conversation_memory[session_id] = []
     if session_id not in custom_instructions:
         custom_instructions[session_id] = {}
 
-    # Check for identity instructions
-    if "remember this" in question.lower():
-        if "who are you" in question.lower() and "i am ridoy" in question.lower():
-            custom_instructions[session_id]["identity"] = "I am ridoy"
-            answer_text = "Got it! I will remember my identity as 'I am ridoy'."
-            conversation_memory[session_id].append({"question": question, "answer": answer_text})
-            return {"question": question, "answer": answer_text}
-
-    # Retrieve remembered identity if any
+    # Retrieve identity
     identity_text = custom_instructions[session_id].get(
         "identity",
-        "The who am I is a Yelp Text-to-SQL and analytics assistant."
+        "I am a PostgreSQL Text-to-SQL assistant for Yelp analytics."
     )
 
     try:
-        # Step 1: Convert user question into SQL
+        # 1️⃣ Convert question to SQL
         result = run_text_to_sql(question)
         rows = result.get("rows")
         columns = result.get("columns")
         sql_query = result.get("sql")
         error = result.get("error")
 
-        # Step 2: Format table if applicable
-        table_text = format_markdown_table(rows, columns) if rows and columns else None
-        answer_text = table_text or "No results found."
-
-        # Step 3: Detect query type
+        answer_text = ""
         query_type = detect_query_type(question)
 
-        # Step 4: Build system prompt for DeepSeek reasoning
-        context_history = conversation_memory[session_id][-3:]  # last 3 interactions
+        # 2️⃣ Handle count/number queries with exact numbers
+        if query_type == "count" and rows and len(rows) == 1 and len(rows[0]) == 1:
+            answer_text = str(rows[0][0])
+
+        # 3️⃣ Handle tables
+        elif rows and columns:
+            if len(rows) == 1 and len(rows[0]) == 1:
+                answer_text = f"{columns[0].replace('_',' ').capitalize()}: {rows[0][0]}"
+            else:
+                header = " | ".join([c.replace("_"," ").capitalize() for c in columns])
+                separator = " | ".join(["---"]*len(columns))
+                row_lines = [" | ".join([str(v) for v in r]) for r in rows[:50]]
+                table_text = "\n".join([header, separator] + row_lines)
+                answer_text = table_text
+                if len(rows) > 50:
+                    answer_text += f"\n\n*Showing first 50 of {len(rows)} rows*"
+
+        # 4️⃣ System prompt for DeepSeek reasoning
+        context_history = conversation_memory[session_id][-3:]
         context_text = "\n".join([f"User: {h['question']}\nAI: {h['answer']}" for h in context_history])
 
         system_prompt = f"""
-You are an expert AI assistant for Yelp analytics.
+You are a smart AI assistant for Yelp analytics.
+Answer in a {tone} way.
 
-Dataset knowledge:
-- Tables: business, review, users, checkin, tip
-- Columns:
-  business: business_id, name, city, state, stars, review_count, is_open, categories, latitude, longitude
-  review: review_id, rev_user_id, rev_business_id, rev_stars, rev_text, rev_date
-  users: user_id, user_name, user_review_count, user_yelping_since, user_friends, user_useful, user_funny, user_cool, user_fans, user_elite
-  checkin: business_id, checkin_dates
-  tip: tip_id, user_id, business_id, text, date, compliment_count
-- Cuisine types: American, Mexican, Italian, Japanese, Chinese, Thai, Mediterranean, French, Vietnamese, Greek, Indian, Korean, Hawaiian, African, Spanish, Middle Eastern
+RULES:
+- If SQL query returns a single number, give ONLY the number.
+- If user asks for table, return table only.
+- Max 4-5 lines for explanations.
+- Respond naturally and clearly.
 
-Rules:
-1. Return answers in Markdown table if multiple rows.
-2. If single value → return only the number or short answer.
-3. Summarize trends in 2-3 lines.
-4. Provide CSV link if data can be exported.
-5. Answer in {tone} style.
-
-Context from previous questions:
+Context:
 {context_text}
 
 User question: "{question}"
-
 SQL Query: {sql_query}
 SQL Result sample: {rows[:10] if rows else 'No rows'}
 Columns: {columns}
 Query type: {query_type}
 """
 
-        # Step 5: Get reasoning from DeepSeek
-        ai_response = ask_deepseek_for_reasoning(system_prompt)
-        if ai_response:
-            answer_text = ai_response
+        # 5️⃣ Call DeepSeek reasoning (skip if already exact number)
+        if not answer_text or query_type != "count":
+            ai_response = ask_deepseek_for_reasoning(system_prompt)
+            if ai_response:
+                answer_text = ai_response
 
-        # Step 6: Summarize answer
+        # 6️⃣ Summarize & CSV
         answer_summary = summarize_answer(answer_text)
-
-        # Step 7: CSV export
         csv_link = rows_to_csv(rows, columns) if rows else None
 
-        # Step 8: Update conversation memory
+        # 7️⃣ Update conversation
         conversation_memory[session_id].append({"question": question, "answer": answer_text})
 
         end_time = time.time()
