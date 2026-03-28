@@ -1,0 +1,9 @@
+﻿weather_condition,total_reviews,avg_rating,one_star_count,one_star_pct,five_star_count,five_star_pct
+Strong Wind,1635,3.815,216,13.21,772,47.22
+Extreme Heat,124229,3.836,17428,14.03,62955,50.68
+Snow,2299,3.865,286,12.44,1138,49.5
+Heavy Snow,18878,3.872,2409,12.76,9387,49.72
+Extreme Cold,19654,3.891,2307,11.74,9644,49.07
+Normal,1675965,3.897,209666,12.51,860611,51.35
+Rain,122885,3.907,15027,12.23,63170,51.41
+Heavy Rain,74675,3.918,8954,11.99,38624,51.72

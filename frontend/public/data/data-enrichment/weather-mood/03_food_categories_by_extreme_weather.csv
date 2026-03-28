@@ -1,0 +1,46 @@
+﻿food_type,weather_condition,checkin_count
+Coffee,Rain,20290
+Burgers,Rain,12367
+Sandwiches,Rain,11684
+Pizza,Rain,10472
+Chinese,Rain,5325
+Fast Food,Rain,3808
+Soup,Rain,3505
+Ice Cream,Rain,3382
+Hot Pot,Rain,768
+Coffee,Heavy Snow,3066
+Burgers,Heavy Snow,1935
+Pizza,Heavy Snow,1868
+Chinese,Heavy Snow,1256
+Sandwiches,Heavy Snow,1249
+Soup,Heavy Snow,721
+Fast Food,Heavy Snow,637
+Ice Cream,Heavy Snow,267
+Hot Pot,Heavy Snow,184
+Coffee,Heavy Rain,12135
+Burgers,Heavy Rain,7468
+Sandwiches,Heavy Rain,7152
+Pizza,Heavy Rain,5884
+Chinese,Heavy Rain,2662
+Fast Food,Heavy Rain,2158
+Soup,Heavy Rain,2127
+Ice Cream,Heavy Rain,1915
+Hot Pot,Heavy Rain,353
+Coffee,Extreme Heat,19027
+Burgers,Extreme Heat,13300
+Pizza,Extreme Heat,11436
+Sandwiches,Extreme Heat,9835
+Chinese,Extreme Heat,4899
+Fast Food,Extreme Heat,4751
+Soup,Extreme Heat,4026
+Ice Cream,Extreme Heat,3565
+Hot Pot,Extreme Heat,184
+Coffee,Extreme Cold,3257
+Pizza,Extreme Cold,2189
+Burgers,Extreme Cold,1998
+Sandwiches,Extreme Cold,1654
+Chinese,Extreme Cold,1225
+Soup,Extreme Cold,744
+Fast Food,Extreme Cold,651
+Ice Cream,Extreme Cold,430
+Hot Pot,Extreme Cold,182

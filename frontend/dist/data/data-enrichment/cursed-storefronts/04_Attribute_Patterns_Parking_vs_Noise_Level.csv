@@ -1,0 +1,11 @@
+﻿has_parking,noise_level,count
+Unknown,Unknown,3908
+Yes,Unknown,2825
+Yes,Average,2101
+Yes,Quiet,581
+Yes,Loud,358
+No,Unknown,83
+Unknown,Average,41
+Unknown,Quiet,34
+Unknown,Loud,26
+No,Average,1
