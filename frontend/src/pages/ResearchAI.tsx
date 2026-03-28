@@ -1,5 +1,9 @@
 ﻿import React, { useMemo, useState } from 'react';
 import { Send, User, Building, Bot } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github.css';
 import DataTable from '../components/common/DataTable';
 import InteractiveBarChart from '../components/charts/InteractiveBarChart';
 import InteractivePieChart from '../components/charts/InteractivePieChart';
@@ -60,7 +64,51 @@ export default function ResearchAI() {
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[75%] rounded-2xl p-4 ${msg.sender === 'user' ? 'bg-yelp-red text-white rounded-br-none' : 'bg-white shadow text-primary-900 rounded-bl-none border border-primary-100'}`}>
-                <p>{msg.text}</p>
+                {msg.sender === 'bot' ? (
+                  <>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc pl-5 mb-2 last:mb-0">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-5 mb-2 last:mb-0">{children}</ol>,
+                        li: ({ children }) => <li className="mb-1">{children}</li>,
+                        code: ({ children, className }) => {
+                          const isInline = !className;
+                          if (isInline) {
+                            return <code className="rounded bg-primary-100 px-1 py-0.5 text-[0.9em]">{children}</code>;
+                          }
+
+                          return <code className={className}>{children}</code>;
+                        },
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+
+                    {msg.sql && (
+                      <div className="mt-3 rounded-lg border border-primary-200 bg-primary-50/40 p-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary-700">Generated SQL</p>
+                        <ReactMarkdown
+                          rehypePlugins={[rehypeHighlight]}
+                          components={{
+                            pre: ({ children }) => (
+                              <pre className="my-0 overflow-x-auto rounded-md border border-primary-200 bg-[#f6f8fa] p-3 text-xs sm:text-sm">
+                                {children}
+                              </pre>
+                            ),
+                            code: ({ children, className }) => <code className={className}>{children}</code>,
+                          }}
+                        >
+                          {`\`\`\`sql\n${msg.sql}\n\`\`\``}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p>{msg.text}</p>
+                )}
               </div>
             </div>
           ))}
