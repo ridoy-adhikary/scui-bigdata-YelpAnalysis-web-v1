@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Core Theme Colors */
+  --color-yelp-red: #FA532E;
+  --color-yelp-red-dark: #D94525;
+  --color-yelp-red-light: #FF7A5C;
+
+  /* Primary Colors (Blue family) */
+  --color-blue-primary: #064B73;
+  --color-blue-dark: #233D53;
+  --color-blue-light: #2D7EA8;
+
+  /* Accent Colors */
+  --color-orange: #FA532E;
+  --color-teal: #00B4A0;
+  --color-purple: #9B59B6;
+  --color-green: #28A745;
+  --color-yellow: #FFC107;
+  
+  /* Neutral Grays */
+  --color-gray-950: #233D53;
+  --color-gray-900: #064B73;
+  --color-gray-800: #0A5C8C;
+  --color-gray-700: #2D7EA8;
+  --color-gray-600: #4A89B0;
+  --color-gray-500: #6EA6C7;
+  --color-gray-400: #9CC1D8;
+  --color-gray-300: #C4DDEA;
+  --color-gray-200: #DFECF3;
+  --color-gray-100: #EEF4F8;
+  --color-white: #F8FBFD;
+
+  /* Chart Palette */
+  --chart-1: #FA532E;
+  --chart-2: #064B73;
+  --chart-3: #2D7EA8;
+  --chart-4: #00B4A0;
+  --chart-5: #9B59B6;
+  --chart-6: #28A745;
+  --chart-7: #FFC107;
+  --chart-8: #FF7A5C;
+
+  /* Status Colors */
+  --color-success: #28A745;
+  --color-warning: #FFC107;
+  --color-error: #FA532E;
+  --color-info: #064B73;
+}
+
+@theme {
+  --color-yelp-red: var(--color-yelp-red);
+  --color-yelp-red-dark: var(--color-yelp-red-dark);
+  --color-yelp-red-light: var(--color-yelp-red-light);
+
+  --color-primary-900: #233D53;
+  --color-primary-700: #064B73;
+  --color-primary-500: #2D7EA8;
+  --color-primary-300: #7FB2CB;
+  --color-primary-100: #E8F2F7;
+
+  --color-accent-orange: var(--color-orange);
+  --color-accent-teal: var(--color-teal);
+  --color-accent-purple: var(--color-purple);
+  --color-accent-green: var(--color-green);
+  --color-accent-yellow: var(--color-yellow);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+
+  --font-display: "IBM Plex Sans", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "Roboto Mono", monospace;
+
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-100: 25rem;
+  --spacing-128: 32rem;
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 12px 24px rgba(0, 0, 0, 0.12);
+  --shadow-dropdown: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+  --animate-slide-up: slideUp 0.5s ease-out;
+  --animate-slide-down: slideDown 0.3s ease-out;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideUp {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slideDown {
+    0% { transform: translateY(-20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+}
+
+@layer base {
+  body {
+    @apply font-body text-gray-900 bg-gray-100 antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold text-gray-900;
+  }
+}
+
+@layer utilities {
+  .focus-visible:focus {
+    @apply outline-2 outline-yelp-red outline-offset-2;
+  }
+}
+
+/* Theme consistency overrides for common utility classes */
+.bg-white {
+  background-color: #f8fbfd;
+}
+
+.bg-gray-50,
+.bg-gray-50\/50,
+.bg-gray-100 {
+  background-color: #eef4f8;
+}
+
+.text-yelp-red {
+  color: #fa532e;
+}
+
+.border-gray-100,
+.border-gray-200,
+.border-gray-300 {
+  border-color: #d6e5ef;
+}

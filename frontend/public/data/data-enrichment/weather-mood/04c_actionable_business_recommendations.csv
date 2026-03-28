@@ -1,0 +1,8 @@
+﻿Weather Condition,Staffing Recommendation,Inventory/Menu Recommendation,Review Risk
+Heavy Rain,Increase delivery staff,"Promote soups, hot food, comfort meals",High — bad weather frustrates customers
+Extreme Heat,"Add outdoor cooling, extra AC staff","Promote cold drinks, ice cream, salads",Medium — heat reduces walk-ins
+Extreme Cold,Reduce outdoor seating staff,"Promote hot beverages, soups, stews",High — cold drives indoor dining
+Heavy Snow,"Reduce floor staff, increase delivery",Focus on delivery-friendly menu items,Very High — snow drastically cuts foot traffic
+Snow,Moderate staffing reduction,Promote warm comfort food,Medium — light snow still affects walk-ins
+Strong Wind,Close outdoor seating entirely,No special promotions needed,Low — mainly affects outdoor seating
+Normal,Standard staffing levels,Standard menu,None — baseline conditions

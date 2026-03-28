@@ -1,0 +1,61 @@
+﻿weather_city,weather_condition,total_reviews,avg_rating,one_star_count,one_star_pct,five_star_count,five_star_pct
+Boise,Heavy Rain,114,3.649,22,19.3,58,50.88
+Boise,Snow,885,3.713,162,18.31,449,50.73
+Boise,Extreme Heat,10808,3.731,2024,18.73,5648,52.26
+Boise,Heavy Snow,4117,3.756,743,18.05,2182,53.0
+Boise,Normal,70764,3.77,12850,18.16,37785,53.4
+Boise,Extreme Cold,1910,3.799,339,17.75,1018,53.3
+Boise,Rain,2109,3.837,358,16.97,1184,56.14
+Indianapolis,Extreme Heat,131,3.389,29,22.14,46,35.11
+Indianapolis,Strong Wind,364,3.731,57,15.66,174,47.8
+Indianapolis,Heavy Rain,7422,3.85,1141,15.37,3787,51.02
+Indianapolis,Normal,169612,3.851,25272,14.9,86043,50.73
+Indianapolis,Snow,674,3.862,93,13.8,333,49.41
+Indianapolis,Rain,15433,3.874,2240,14.51,7949,51.51
+Indianapolis,Extreme Cold,8734,3.886,1177,13.48,4440,50.84
+Indianapolis,Heavy Snow,7703,3.915,1033,13.41,3964,51.46
+Nashville,Snow,378,3.68,68,17.99,185,48.94
+Nashville,Heavy Rain,15032,3.802,2400,15.97,7699,51.22
+Nashville,Extreme Cold,3345,3.808,492,14.71,1661,49.66
+Nashville,Extreme Heat,15223,3.81,2453,16.11,7907,51.94
+Nashville,Normal,236138,3.818,37176,15.74,122758,51.99
+Nashville,Heavy Snow,2048,3.821,332,16.21,1064,51.95
+Nashville,Rain,25420,3.824,3978,15.65,13271,52.21
+New Orleans,Heavy Rain,22474,3.964,2742,12.2,12266,54.58
+New Orleans,Normal,293382,3.968,35145,11.98,158963,54.18
+New Orleans,Rain,24989,3.979,2892,11.57,13564,54.28
+New Orleans,Extreme Heat,23353,3.996,2836,12.14,13025,55.77
+Philadelphia,Extreme Heat,6625,3.81,1038,15.67,3355,50.64
+Philadelphia,Rain,32225,3.813,4910,15.24,16083,49.91
+Philadelphia,Normal,343339,3.826,50881,14.82,171846,50.05
+Philadelphia,Strong Wind,1385,3.826,204,14.73,696,50.25
+Philadelphia,Extreme Cold,7012,3.831,1007,14.36,3448,49.17
+Philadelphia,Heavy Rain,13857,3.853,1935,13.96,6979,50.36
+Philadelphia,Heavy Snow,7211,3.885,987,13.69,3721,51.6
+Philadelphia,Snow,700,3.937,83,11.86,357,51.0
+Reno,Extreme Heat,37268,3.71,7547,20.25,19658,52.75
+Reno,Extreme Cold,747,3.714,134,17.94,368,49.26
+Reno,Heavy Snow,7243,3.726,1439,19.87,3794,52.38
+Reno,Strong Wind,721,3.732,143,19.83,373,51.73
+Reno,Rain,2632,3.744,499,18.96,1373,52.17
+Reno,Normal,204657,3.746,40101,19.59,109357,53.43
+Reno,Heavy Rain,1272,3.756,211,16.59,639,50.24
+Reno,Snow,882,3.797,171,19.39,487,55.22
+Santa Barbara,Extreme Heat,83,3.964,13,15.66,47,56.63
+Santa Barbara,Normal,130559,4.063,16451,12.6,80695,61.81
+Santa Barbara,Rain,2605,4.118,293,11.25,1628,62.5
+Santa Barbara,Heavy Rain,1464,4.161,166,11.34,935,63.87
+St. Louis,Rain,9756,3.796,1606,16.46,5012,51.37
+St. Louis,Normal,123995,3.826,19674,15.87,64525,52.04
+St. Louis,Extreme Heat,4741,3.831,700,14.76,2411,50.85
+St. Louis,Heavy Rain,4828,3.852,738,15.29,2575,53.33
+St. Louis,Extreme Cold,6354,3.858,942,14.83,3295,51.86
+Tampa,Extreme Heat,27306,3.74,5312,19.45,14394,52.71
+Tampa,Normal,790224,3.774,142838,18.08,415310,52.56
+Tampa,Rain,59390,3.789,10674,17.97,31684,53.35
+Tampa,Heavy Rain,39340,3.793,6892,17.52,20764,52.78
+Tucson,Extreme Heat,75139,3.679,15329,20.4,38484,51.22
+Tucson,Normal,147020,3.701,28888,19.65,75088,51.07
+Tucson,Heavy Rain,1517,3.703,290,19.12,762,50.23
+Tucson,Rain,3566,3.729,670,18.79,1843,51.68
+Tucson,Heavy Snow,208,3.755,37,17.79,114,54.81
