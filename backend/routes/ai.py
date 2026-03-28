@@ -70,7 +70,6 @@ def ask_ai(payload: AskRequest):
         if "who are you" in question.lower() and "i am ridoy" in question.lower():
             custom_instructions[session_id]["identity"] = "I am ridoy"
             answer_text = "Got it! I will remember my identity as 'I am ridoy'."
-            # Update conversation memory and return immediately
             conversation_memory[session_id].append({"question": question, "answer": answer_text})
             return {"question": question, "answer": answer_text}
 
@@ -89,6 +88,7 @@ def ask_ai(payload: AskRequest):
         error = result.get("error")
 
         # 2️⃣ Format SQL results for readability
+        table_text = None
         if rows and columns:
             if len(rows) == 1 and len(rows[0]) == 1:
                 col_name = columns[0].replace("_", " ").lower()
@@ -102,8 +102,10 @@ def ask_ai(payload: AskRequest):
                 answer_text = table_text
                 if len(rows) > 50:
                     answer_text += f"\n\n*Showing first 50 of {len(rows)} rows*"
-        else:
-            answer_text = "No data found."
+
+        # 2.5️⃣ Table-only request handling
+        if "table" in question.lower() and table_text:
+            answer_text = table_text
 
         # 3️⃣ Detect query type
         query_type = detect_query_type(question)
@@ -113,29 +115,32 @@ def ask_ai(payload: AskRequest):
         context_text = "\n".join([f"User: {h['question']}\nAI: {h['answer']}" for h in context_history])
 
         system_prompt = f"""
-You are a smart, conversational AI assistant for Ridoy's dataset.
-Respond in a {tone}, human-like manner.
-Remembered identity: {identity_text}
+You are a smart AI assistant for Yelp analytics.
+
+Respond in a {tone}, natural and human-like way.
+
+IMPORTANT RULES:
+- Keep answers SHORT and clear
+- Do NOT over-explain
+- If user asks for table → ONLY return table
+- If user asks for number → give direct answer
+- Explain SQL ONLY if user asks
+- Max 4-5 lines unless necessary
+
+Context:
 {context_text}
 
-User asked: "{question}"
-SQL Query executed: {sql_query}
-SQL Error (if any): {error}
-SQL Result sample: {rows[:10] if rows else 'No rows returned'}
+User question: "{question}"
+
+SQL Query: {sql_query}
+SQL Result sample: {rows[:10] if rows else 'No rows'}
 Columns: {columns}
 Query type: {query_type}
-
-Please:
-- Explain trends, calculations, or insights in plain language.
-- Explain what the SQL query is doing.
-- Format multi-row results as a Markdown table if needed.
-- Keep answers concise, friendly, and user-focused.
-- Suggest follow-up clarification if question is ambiguous.
 """
 
         # 5️⃣ Call AI reasoning engine
         ai_response = ask_deepseek_for_reasoning(system_prompt)
-        if ai_response:
+        if ai_response and "table" not in question.lower():
             answer_text = ai_response  # override raw table with AI explanation
 
         # 6️⃣ Add summarization
