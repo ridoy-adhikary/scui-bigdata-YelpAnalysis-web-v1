@@ -28,7 +28,13 @@ export const useChatbot = () => {
         setSessionId(result.sessionId);
       }
       setLastResult(result);
-      const botMsg: Message = { id: (Date.now() + 1).toString(), text: result.answer || "The backend returned an empty answer.", sender: "bot", timestamp: new Date() };
+      const botMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: result.answer || "The backend returned an empty answer.",
+        sql: result.sql,
+        sender: "bot",
+        timestamp: new Date()
+      };
       setMessages(prev => [...prev, botMsg]);
     } catch (err) {
       const message = getApiErrorMessage(err);

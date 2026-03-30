@@ -1,6 +1,7 @@
 export interface Message {
   id: string;
   text: string;
+  sql?: string;
   sender: 'user' | 'bot';
   timestamp: Date;
 }
@@ -30,6 +31,7 @@ export interface ChatChartResult {
 export interface ChatQueryResponse {
   sessionId?: string;
   answer: string;
+  sql?: string;
   table?: ChatTableResult;
   chart?: ChatChartResult;
   meta?: {

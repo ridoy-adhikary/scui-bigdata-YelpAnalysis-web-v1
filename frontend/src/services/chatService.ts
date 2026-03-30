@@ -46,6 +46,95 @@ const keepDescriptionOnlyWhenTableExists = (answer: string): string => {
   return firstParagraph || 'The table is available in the structured result panel on the right.';
 };
 
+const stripMarkdownTables = (text: string): string => {
+  const lines = text.split(/\r?\n/);
+  const kept: string[] = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i] ?? '';
+    const divider = lines[i + 1] ?? '';
+    const isHeaderCandidate = line.includes('|');
+    const isDivider = /^\|?\s*[-:]+(?:\s*\|\s*[-:]+)+\s*\|?$/.test(divider.trim());
+
+    if (isHeaderCandidate && isDivider) {
+      i += 1;
+      while (i + 1 < lines.length && (lines[i + 1] ?? '').includes('|')) {
+        i += 1;
+      }
+      continue;
+    }
+
+    kept.push(line);
+  }
+
+  return kept.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+};
+
+const normalizeSqlText = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  const withoutFence = trimmed
+    .replace(/^```(?:sql)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .replace(/^generated\s+sql\s*:\s*/i, '')
+    .trim();
+
+  if (!withoutFence) return undefined;
+  return withoutFence.replace(/;?\s*$/, ';');
+};
+
+const extractSqlFromPayload = (payload: any): string | undefined => {
+  const candidates: unknown[] = [
+    payload?.sql,
+    payload?.query,
+    payload?.generated_sql,
+    payload?.generatedQuery,
+    payload?.executed_sql,
+    payload?.meta?.sql,
+    payload?.meta?.query,
+    payload?.meta?.generated_sql,
+    payload?.meta?.executed_sql,
+  ];
+
+  for (const candidate of candidates) {
+    const sql = normalizeSqlText(candidate);
+    if (!sql) continue;
+    if (/\b(select|with|insert|update|delete)\b/i.test(sql)) return sql;
+  }
+
+  return undefined;
+};
+
+const extractSqlFromAnswer = (answer: string): string | undefined => {
+  const fencedMatch = answer.match(/```\s*sql\s*([\s\S]*?)```/i);
+  if (fencedMatch?.[1]) {
+    return normalizeSqlText(fencedMatch[1]);
+  }
+
+  const generatedLabelIdx = answer.search(/generated\s+sql\s*:/i);
+  if (generatedLabelIdx >= 0) {
+    const trailing = answer.slice(generatedLabelIdx).replace(/generated\s+sql\s*:/i, '').trim();
+    const possibleSql = normalizeSqlText(trailing);
+    if (possibleSql && /\b(select|with|insert|update|delete)\b/i.test(possibleSql)) {
+      return possibleSql;
+    }
+  }
+
+  return undefined;
+};
+
+const stripSqlArtifacts = (text: string): string => {
+  const withoutFencedSql = text.replace(/```\s*sql[\s\S]*?```/gi, '').trim();
+  const generatedLabelIdx = withoutFencedSql.search(/generated\s+sql\s*:/i);
+  const withoutGeneratedLabel = generatedLabelIdx >= 0
+    ? withoutFencedSql.slice(0, generatedLabelIdx).trim()
+    : withoutFencedSql;
+
+  return withoutGeneratedLabel.replace(/\n{3,}/g, '\n\n').trim();
+};
+
 const hasMarkdownTable = (text: string): boolean => {
   return /\|.+\|\s*\n\s*\|\s*[-:]+[-|\s:]*\|/m.test(text);
 };
@@ -118,6 +207,21 @@ const isConversationalQuery = (query?: string): boolean => {
   return /^(hi|hello|hey|thanks|thank you|how are you|who are you|what can you do|help)\b/.test(normalized);
 };
 
+const isAnalyticsQuery = (query?: string): boolean => {
+  if (!query) return false;
+  const normalized = query.trim().toLowerCase();
+
+  if (isConversationalQuery(normalized)) return false;
+
+  return /(top|count|sum|avg|average|group by|trend|distribution|city|state|rating|review|merchant|business|table|chart|sql|query|find|show|list|compare|analy[sz]e)/i.test(normalized);
+};
+
+const shouldExposeSql = (query: string | undefined, sql: string | undefined): boolean => {
+  if (!sql) return false;
+  if (!isAnalyticsQuery(query)) return false;
+  return true;
+};
+
 const isMetaOrGreetingTable = (table: { columns: string[]; rows: Array<Array<unknown>> }): boolean => {
   const normalizedColumns = table.columns.map((c) => String(c).trim().toLowerCase());
   const isTiny = table.columns.length <= 2 && table.rows.length <= 1;
@@ -148,6 +252,8 @@ const shouldExposeTable = (
 
 const normalizeResponse = (payload: any, query?: string): ChatQueryResponse => {
   const rawAnswer = payload?.answer || payload?.response || payload?.message || '';
+  const sqlCandidate = extractSqlFromPayload(payload) ?? extractSqlFromAnswer(rawAnswer);
+  const sqlFromPayload = shouldExposeSql(query, sqlCandidate) ? sqlCandidate : undefined;
   const hasColumnsAndRows = Array.isArray(payload?.columns) && Array.isArray(payload?.rows);
   const parsedMarkdownTable = hasMarkdownTable(rawAnswer)
     ? extractTableFromMarkdown(rawAnswer)
@@ -161,13 +267,15 @@ const normalizeResponse = (payload: any, query?: string): ChatQueryResponse => {
   const exposeTable = shouldExposeTable(tableCandidate, query);
   const table = exposeTable ? tableCandidate : undefined;
   const hasTableLikeContent = Boolean(tableCandidate) || hasMarkdownTable(rawAnswer);
+  const baseAnswerText = stripSqlArtifacts(hasTableLikeContent ? stripMarkdownTables(rawAnswer) : rawAnswer);
   const answerText = hasTableLikeContent
-    ? keepDescriptionOnlyWhenTableExists(rawAnswer)
-    : rawAnswer;
+    ? (baseAnswerText || keepDescriptionOnlyWhenTableExists(rawAnswer))
+    : baseAnswerText;
 
   return {
     sessionId: payload?.sessionId ?? payload?.session_id,
     answer: sanitizeAnswer(answerText),
+    sql: sqlFromPayload,
     table,
     chart: payload?.chart,
     meta: payload?.meta || {
